@@ -11,6 +11,13 @@
     var publicInterface = {
         pluginName: 'WWF Plugin',
         afterViewer: function(params, map) {
+            var layerID = params && params.layerID || 'C53699CEACAF4D8AB0ACF1A4D152D85A',
+                layer = nsGmx.gmxMap.layersByID[layerID];
+                
+            if (!layer) {
+                return;
+            }
+            
             var leftPanel = new nsGmx.LeftPanelItem('wwf', {
                 path: ['Мониторинг нарушений']
             });
@@ -40,7 +47,7 @@
                 values: [1, 365],
                 change: function(event, sliderUI) {
                     updateInfo(sliderUI.values[0], sliderUI.values[1]);
-                    map.layers[layerID].repaint();
+                    layer.repaint();
                 }
             });
             
@@ -53,13 +60,12 @@
             var parentContainer = $('#leftContentInner').length ? $('#leftContentInner') : $('#leftContent');
             parentContainer.prepend(leftPanel.panelCanvas);
             
-            var layerID = params && params.layerID || 'C53699CEACAF4D8AB0ACF1A4D152D85A';
-            map.layers[layerID].setImageProcessingHook(function(image) {
+            layer.setRasterHook(function(dstCanvas, srcImage, sx, sy, sw, sh, dx, dy, dw, dh, info) {
                 
                 var canvas = document.createElement('canvas');
                 canvas.width = canvas.height = 256;
                 var ctx = canvas.getContext('2d');
-                ctx.drawImage(image, 0, 0);
+                ctx.drawImage(srcImage, 0, 0);
                 
                 var imgData = ctx.getImageData(0, 0, 256, 256),
                     data = imgData.data,
@@ -79,8 +85,9 @@
                 
                 ctx.putImageData(imgData, 0, 0);
                 
-                return canvas;
-            })
+                var dstCtx = dstCanvas.getContext('2d');
+                dstCtx.drawImage(canvas, sx, sy, sw, sh, dx, dy, dw, dh);
+            });
         }
     };
     
