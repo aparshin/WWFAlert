@@ -40,6 +40,8 @@
                 ui.find('.wwf-info').html('Фильтр по дням: ' + date2str(dateMin) + ' - ' + date2str(dateMax));
             }
             
+            var colorizer = new L._WWFAlarmColorizer();
+            
             slider.slider({
                 min: 1,
                 max: 365,
@@ -47,14 +49,15 @@
                 values: [1, 365],
                 change: function(event, sliderUI) {
                     updateInfo(sliderUI.values[0], sliderUI.values[1]);
-                    layer.repaint();
+                    colorizer.setDateInterval(sliderUI.values[0], sliderUI.values[1]);
+                    layer.redraw();
                 }
             });
             
             updateInfo(1, 365);
             
-            L.WWFAlarm.drawPalette(ui.find('.wwf-palette')[0]);
-            var palette = L.WWFAlarm.genPalette(365);
+            L._WWFAlarmColorizer.drawPalette(ui.find('.wwf-palette')[0]);
+            var palette = L._WWFAlarmColorizer.genPalette(365);
             
             ui.appendTo(leftPanel.workCanvas);
             var parentContainer = $('#leftContentInner').length ? $('#leftContentInner') : $('#leftContent');
@@ -67,23 +70,7 @@
                 var ctx = canvas.getContext('2d');
                 ctx.drawImage(srcImage, 0, 0);
                 
-                var imgData = ctx.getImageData(0, 0, 256, 256),
-                    data = imgData.data,
-                    minVal = slider.slider('values', 0),
-                    maxVal = slider.slider('values', 1);
-                
-                for (var p = 0; p < 256*256*4; p += 4) {
-                    var v = data[p] + ((data[p+1]&0xf) << 8);
-                    if (v >= minVal && v <= maxVal) {
-                        data[p+0] = palette[4*v + 0];
-                        data[p+1] = palette[4*v + 1];
-                        data[p+2] = palette[4*v + 2];
-                    } else {
-                        data[p+3] = 0;
-                    }
-                }
-                
-                ctx.putImageData(imgData, 0, 0);
+                colorizer.colorizeTile(canvas);
                 
                 var dstCtx = dstCanvas.getContext('2d');
                 dstCtx.drawImage(canvas, sx, sy, sw, sh, dx, dy, dw, dh);
