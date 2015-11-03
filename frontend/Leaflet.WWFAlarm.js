@@ -18,13 +18,8 @@
             lossTh = this._lossThreshold,
             confTh = this._confThreshold;
             
-        var hist = [];
-            
         for (var p = 0; p < 256*256*4; p += 4) {
             var v = data[p] + (data[p+1]&0xf << 8);
-            
-            var loss = data[p+2];
-            hist[loss] = (hist[loss] || 0) + 1;
             
             if (v >= minVal && v <= maxVal && data[p+2] >= lossTh && (data[p+1] >> 6) >= confTh) {  
                 data[p+0] = ct[4*v+0];
@@ -34,8 +29,6 @@
                 data[p+3] = 0;
             }
         }
-        
-        console.log(hist);
         
         ctx.putImageData(imgData, 0, 0);
     },
