@@ -1,4 +1,14 @@
-﻿L._WWFAlarmColorizer = L.Class.extend({
+﻿(function() {
+    
+var genProxyMethod = function(methodName) {
+    return function() {
+        this._colorizer[methodName].apply(this._colorizer, arguments);
+        this.redraw();
+        return this;
+    }
+}
+    
+L._WWFAlarmColorizer = L.Class.extend({
     _minDate: 1,
     _maxDate: 365,
     _lossThreshold: 0,
@@ -49,6 +59,29 @@
     //confThreshold - 0-3
     setConfThreshold: function(confThreshold) {
         this._confThreshold = confThreshold;
+        return this;
+    },
+    
+    useFixedColor: function(color) {
+        var r = color >> 16,
+            g = (color & 0xff00) >> 8,
+            b = color & 0xff,
+            i = 0;
+            
+        var ct = this._colorTable = new Array(365*4);
+        
+        while (i < ct.length) {
+            ct[i+0] = r;
+            ct[i+1] = g;
+            ct[i+2] = b;
+            ct[i+3] = 255;
+            i += 4;
+        }
+        return this;
+    },
+    
+    usePalette: function() {
+        this._colorTable = L._WWFAlarmColorizer.genPalette(365);
         return this;
     }
 });
@@ -120,23 +153,19 @@ L.WWFAlarm = L.TileLayer.Canvas.extend({
     },
     
     //dateBegin, dateEnd - number of days since beginning of the year (1 - January 1, etc)
-    setDateInterval: function(dateBegin, dateEnd) {
-        this._colorizer.setDateInterval(dateBegin, dateEnd);
-        this.redraw();
-        return this;
-    },
+    setDateInterval: genProxyMethod('setDateInterval'),
     
     //lossThreshold - 0-100
-    setLossThreshold: function(lossThreshold) {
-        this._colorizer.setLossThreshold(lossThreshold);
-        this.redraw();
-        return this;
-    },
+    setLossThreshold: genProxyMethod('setLossThreshold'),
     
     //confThreshold - 0-3
-    setConfThreshold: function(confThreshold) {
-        this._colorizer.setConfThreshold(confThreshold);
-        this.redraw();
-        return this;
-    }
+    setConfThreshold: genProxyMethod('setConfThreshold'),
+    
+    //color as integer (0xffffff - 0x000000)
+    useFixedColor: genProxyMethod('useFixedColor'),
+    
+    //without arguments
+    usePalette: genProxyMethod('usePalette')
 })
+
+})();
