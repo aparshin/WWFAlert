@@ -23,9 +23,10 @@
     <script src="http://maps.kosmosnimki.ru/apiv2/leaflet-geomixer-src.js?key=U92596WMIH"></script>
     <script src="../Leaflet.WWFAlarm.js"></script>
     <script>
+        var API_KEY = ''; // <- your GeoMixer Direct API key
         var map = L.map('map').setView([47.077740, 135.43567], 12);
         
-        var alarm = new L.WWFAlarm('C028E31745494A0ABFE3AA71EDC2C3CA', '1D116AC56D694C0B8CDCA87C06D1961A', {zIndex: 1});
+        var alarm = new L.WWFAlarm('C028E31745494A0ABFE3AA71EDC2C3CA', '1D116AC56D694C0B8CDCA87C06D1961A', {zIndex: 1, apiKey: API_KEY});
         alarm.setDateInterval(1, 365).addTo(map);
 
         var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {

@@ -117,7 +117,7 @@ L.WWFAlarm = L.TileLayer.Canvas.extend({
     options: {
         async: true
     },
-    _tileTemplate: 'http://maps.kosmosnimki.ru/TileService.ashx?request=gettile&NearestNeighbor=true&layername={layerID}&srs=EPSG:3857&z={z}&x={x}&y={y}&format=png&Map={mapID}',
+    _tileTemplate: 'http://maps.kosmosnimki.ru/TileService.ashx?request=gettile&NearestNeighbor=true&layername={layerID}&srs=EPSG:3857&z={z}&x={x}&y={y}&format=png&Map={mapID}&apiKey={apiKey}',
     initialize: function(layerID, mapID, options) {
         this._colorizer = new L._WWFAlarmColorizer();
         this._layerID = layerID;
@@ -148,7 +148,8 @@ L.WWFAlarm = L.TileLayer.Canvas.extend({
             y: tilePoint.y,
             z: zoom,
             layerID: this._layerID,
-            mapID: this._mapID
+            mapID: this._mapID,
+            apiKey: this.options.apiKey
         });
     },
     
